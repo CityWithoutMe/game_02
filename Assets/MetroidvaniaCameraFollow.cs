@@ -5,7 +5,7 @@ public sealed class MetroidvaniaCameraFollow : MonoBehaviour
     [SerializeField] private float minX = 0f;
     [SerializeField] private float maxX = 196f;
     [SerializeField] private float fixedY = 6f;
-    [SerializeField] private float smoothTime = 0.2f;
+    [SerializeField] private float smoothTime = 0.1f;
     [SerializeField] private float shaftEndX = 24f;
     [SerializeField] private float maxY = 24f;
     private Transform player;

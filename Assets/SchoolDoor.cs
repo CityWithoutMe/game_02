@@ -9,20 +9,54 @@ public sealed class SchoolDoor : MonoBehaviour
     [SerializeField] private TileBase openTile;
     [SerializeField] private bool initiallyOpen;
     [SerializeField] private bool initiallyLocked;
+    [SerializeField] private string requiredCoinId;
     private Tilemap tiles;
     private BoxCollider2D blocker;
     private Transform player;
+    private bool externallyLocked;
+    private bool requiredCoinCollected;
     public bool IsOpen { get; private set; }
     public bool IsLocked { get; private set; }
 
     private void Awake()
     {
-        IsLocked = initiallyLocked;
-        SetOpen(initiallyOpen && !IsLocked);
+        externallyLocked = initiallyLocked;
+        requiredCoinCollected = string.IsNullOrEmpty(requiredCoinId);
+        RefreshLockState();
+        SetOpen(initiallyOpen);
+    }
+
+    private void OnEnable()
+    {
+        CoinRoomPickup.Collected += HandleCoinCollected;
+    }
+
+    private void OnDisable()
+    {
+        CoinRoomPickup.Collected -= HandleCoinCollected;
+    }
+
+    private void HandleCoinCollected(string coinId)
+    {
+        if (!string.IsNullOrEmpty(requiredCoinId) && coinId == requiredCoinId)
+        {
+            requiredCoinCollected = true;
+            RefreshLockState();
+        }
+    }
+
+    private void RefreshLockState()
+    {
+        IsLocked = externallyLocked || !requiredCoinCollected;
+        if (IsLocked)
+            SetOpen(false);
     }
 
     public void SetOpen(bool open)
     {
+        if (open && IsLocked)
+            return;
+
         if (tiles == null) tiles = GetComponent<Tilemap>();
         if (blocker == null) blocker = GetComponent<BoxCollider2D>();
         IsOpen = open;
@@ -32,8 +66,8 @@ public sealed class SchoolDoor : MonoBehaviour
 
     public void SetLocked(bool locked)
     {
-        IsLocked = locked;
-        if (locked) SetOpen(false);
+        externallyLocked = locked;
+        RefreshLockState();
     }
 
     private bool InReach()
@@ -60,7 +94,9 @@ public sealed class SchoolDoor : MonoBehaviour
     private void OnGUI()
     {
         if (!InReach()) return;
-        string message = IsLocked ? "LOCKED" : IsOpen ? "E  /  CLOSE" : "E  /  OPEN";
+        string message = IsLocked
+            ? (!requiredCoinCollected ? "COIN REQUIRED" : "LOCKED")
+            : IsOpen ? "E  /  CLOSE" : "E  /  OPEN";
         GUI.Box(new Rect(Screen.width * 0.5f - 85f, Screen.height - 70f, 170f, 34f), message);
     }
 }

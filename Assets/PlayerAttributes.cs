@@ -12,6 +12,8 @@ public sealed class PlayerAttributes : MonoBehaviour
     [SerializeField, Min(0)] private int currentHealth = 100;
     [SerializeField, Min(0)] private int attackPower = 10;
     [SerializeField, Min(0)] private int defense = 0;
+    [SerializeField] private GameObject damageNumberPrefab;
+    [SerializeField] private Transform damageNumberPoint;
 
     public float MoveSpeed => moveSpeed;
     public float JumpVelocity => jumpVelocity;
@@ -28,7 +30,32 @@ public sealed class PlayerAttributes : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        currentHealth = Mathf.Max(0, currentHealth - Mathf.Max(0, amount - defense));
+        int damage = Mathf.Max(0, amount - defense);
+        if (damage == 0 || currentHealth <= 0)
+            return;
+
+        currentHealth = Mathf.Max(0, currentHealth - damage);
+        ShowDamageNumber(damage);
+    }
+
+    private void ShowDamageNumber(int damage)
+    {
+        if (damageNumberPrefab == null)
+            return;
+
+        Vector3 spawnPosition = damageNumberPoint != null
+            ? damageNumberPoint.position
+            : transform.position + Vector3.up;
+
+        GameObject numberObject = Instantiate(
+            damageNumberPrefab,
+            spawnPosition,
+            Quaternion.identity
+        );
+
+        DamageNumber number = numberObject.GetComponent<DamageNumber>();
+        if (number != null)
+            number.SetValue(damage);
     }
 
     public void Heal(int amount)

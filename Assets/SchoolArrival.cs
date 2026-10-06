@@ -26,7 +26,7 @@ public sealed class SchoolArrival : MonoBehaviour
         body.position = dropPoint.position;
         body.velocity = new Vector2(0f, -3f);
         if (attributes != null) attributes.Heal(attributes.MaxHealth);
-        if (movement != null) movement.SetControlsEnabled(false);
+        if (movement != null) movement.SetControlsEnabled(true);
         arriving = true;
         dropTime = Time.time;
         if (levelFlow != null) levelFlow.OnPlayerRespawn();

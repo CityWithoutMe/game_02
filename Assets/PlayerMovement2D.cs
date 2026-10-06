@@ -5,6 +5,7 @@ public sealed class PlayerMovement2D : MonoBehaviour
 {
     [SerializeField] private PlayerAttributes attributes;
     [SerializeField] private LayerMask groundLayers = ~0;
+    [SerializeField] private Player2DController platformerController;
 
     private Rigidbody2D body;
     private BoxCollider2D bodyCollider;
@@ -13,11 +14,19 @@ public sealed class PlayerMovement2D : MonoBehaviour
     private float horizontal;
     private bool jumpQueued;
     private bool controlsEnabled = true;
-    public int JumpCount { get; private set; }
-    public bool IsGrounded => bodyCollider != null && CheckGrounded();
+    private int legacyJumpCount;
+    public int JumpCount => platformerController != null ? platformerController.JumpCount : legacyJumpCount;
+    public bool IsGrounded => platformerController != null
+        ? platformerController.IsGrounded
+        : bodyCollider != null && CheckGrounded();
 
     public void SetControlsEnabled(bool enabled)
     {
+        if (platformerController != null)
+        {
+            platformerController.SetControlsEnabled(enabled);
+            return;
+        }
         controlsEnabled = enabled;
         horizontal = 0f;
         jumpQueued = false;
@@ -28,12 +37,14 @@ public sealed class PlayerMovement2D : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
         bodyCollider = GetComponent<BoxCollider2D>();
         sprite = GetComponent<SpriteRenderer>();
+        if (platformerController == null) platformerController = GetComponent<Player2DController>();
         if (attributes == null) attributes = GetComponent<PlayerAttributes>();
         body.freezeRotation = true;
     }
 
     private void Update()
     {
+        if (platformerController != null) return;
         if (!controlsEnabled) return;
         horizontal = (Input.GetKey(KeyCode.D) ? 1f : 0f) - (Input.GetKey(KeyCode.A) ? 1f : 0f);
         if (Input.GetKeyDown(KeyCode.K)) jumpQueued = true;
@@ -42,11 +53,12 @@ public sealed class PlayerMovement2D : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (platformerController != null) return;
         body.velocity = new Vector2(horizontal * attributes.MoveSpeed, body.velocity.y);
         if (jumpQueued && IsGrounded)
         {
             body.velocity = new Vector2(body.velocity.x, attributes.JumpVelocity);
-            JumpCount++;
+            legacyJumpCount++;
         }
         jumpQueued = false;
     }
