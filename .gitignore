@@ -11,6 +11,7 @@
 
 # Local generation backups and disposable validation projects
 /Tools/
+/.build-presentation/
 
 # IDE and machine state
 .vs/
