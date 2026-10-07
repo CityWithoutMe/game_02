@@ -12,6 +12,7 @@ public sealed class DisplayColorSettings : MonoBehaviour
 
     public static DisplayColorSettings Instance { get; private set; }
     public float Brightness { get; private set; }
+    public float SceneBrightnessOffset { get; private set; }
     public float Contrast { get; private set; }
     public float Gamma { get; private set; }
     public Material UiMaterial { get; private set; }
@@ -64,6 +65,9 @@ public sealed class DisplayColorSettings : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // The ending glow belongs to one scene; never persist it in calibration.
+        SceneBrightnessOffset = 0f;
+        Apply();
         foreach (Camera camera in Camera.allCameras)
         {
             if (camera == null) continue;
@@ -84,6 +88,12 @@ public sealed class DisplayColorSettings : MonoBehaviour
         PlayerPrefs.SetFloat(GammaKey, Gamma);
     }
 
+    public void SetSceneBrightnessOffset(float offset)
+    {
+        SceneBrightnessOffset = Mathf.Clamp(offset, 0f, 2f);
+        Apply();
+    }
+
     public void ResetValues()
     {
         SetValues(0f, 0f, 1f);
@@ -98,7 +108,7 @@ public sealed class DisplayColorSettings : MonoBehaviour
     {
         if (colorAdjustments != null)
         {
-            colorAdjustments.postExposure.Override(Brightness);
+            colorAdjustments.postExposure.Override(Mathf.Clamp(Brightness + SceneBrightnessOffset, -2f, 3f));
             colorAdjustments.contrast.Override(Contrast);
         }
         if (liftGammaGain != null)

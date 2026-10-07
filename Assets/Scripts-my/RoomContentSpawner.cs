@@ -67,7 +67,7 @@ public sealed class RoomContentSpawner : MonoBehaviour
         TintExistingEnemies();
         SpawnExtraMonsters(parent);
         SpawnReplacementMonster(parent);
-        SpawnBoss(parent);
+        if (FindObjectOfType<FinalExamEncounter>() == null) SpawnBoss(parent);
         DisableFirstRoomMonster();
         SpawnCoins(parent);
     }
@@ -86,6 +86,8 @@ public sealed class RoomContentSpawner : MonoBehaviour
 
         for (int i = 0; i < extraMonsterPositions.Length; i++)
         {
+            // Reserve the rooftop for the final exam encounter.
+            if (extraMonsterPositions[i].x >= 160f && FindObjectOfType<FinalExamEncounter>() != null) continue;
             string monsterName = "zhipian_Room" + (i + 3);
             if (GameObject.Find(monsterName) != null)
                 continue;

@@ -5,7 +5,6 @@ using UnityEngine.Tilemaps;
 public sealed class MetroidvaniaLevelFlow : MonoBehaviour
 {
     [SerializeField] private SchoolDoor tutorialEntrance;
-    [SerializeField] private SchoolDoor tutorialExit;
     [SerializeField] private SchoolDoor bossExit;
     [SerializeField] private Tilemap dawnBackground;
     [SerializeField] private Tilemap dawnFloor;
@@ -25,7 +24,6 @@ public sealed class MetroidvaniaLevelFlow : MonoBehaviour
 
     private void Start()
     {
-        if (tutorialExit != null) tutorialExit.SetLocked(true);
         if (bossExit != null) bossExit.SetLocked(bossEncounterEnabled);
     }
 
@@ -69,7 +67,6 @@ public sealed class MetroidvaniaLevelFlow : MonoBehaviour
             case Step.Explore:
                 if (bossEncounterEnabled && !bossCompleted && player.position.x >= bossStartX)
                 {
-                    if (tutorialExit != null) tutorialExit.SetLocked(true);
                     if (bossExit != null) bossExit.SetLocked(true);
                     step = Step.Boss;
                 }
@@ -81,18 +78,12 @@ public sealed class MetroidvaniaLevelFlow : MonoBehaviour
     public void CompleteTutorial()
     {
         if (tutorialEntrance != null) tutorialEntrance.SetLocked(false);
-        if (tutorialExit != null)
-        {
-            tutorialExit.SetLocked(false);
-            tutorialExit.SetOpen(true);
-        }
         step = Step.Explore;
     }
 
     public void CompleteBossFight()
     {
         bossCompleted = true;
-        if (tutorialExit != null) tutorialExit.SetLocked(false);
         if (bossExit != null)
         {
             bossExit.SetLocked(false);
@@ -105,11 +96,7 @@ public sealed class MetroidvaniaLevelFlow : MonoBehaviour
     {
         if (tutorialEntrance != null) tutorialEntrance.SetLocked(false);
         if (step == Step.Move || step == Step.Jump) step = Step.Arrival;
-        if (step == Step.Boss)
-        {
-            if (tutorialExit != null) tutorialExit.SetLocked(false);
-            step = Step.Explore;
-        }
+        if (step == Step.Boss) step = Step.Explore;
     }
 
     private void OnGUI()
@@ -118,6 +105,6 @@ public sealed class MetroidvaniaLevelFlow : MonoBehaviour
         if (step == Step.Move) message = "A / D   -   WALK";
         if (step == Step.Jump) message = "K   -   JUMP AND LAND";
         if (step == Step.Boss) message = "BOSS ROOM";
-        if (message != null) GUI.Box(new Rect(24, 24, 280, 45), message);
+        if (message != null) GUI.Box(new Rect(Screen.width * 0.5f - 140f, 24f, 280f, 45f), message);
     }
 }

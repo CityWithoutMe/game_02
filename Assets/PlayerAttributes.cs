@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>Editable player values shared by movement and future combat scripts.</summary>
@@ -6,10 +7,13 @@ public sealed class PlayerAttributes : MonoBehaviour
     [Header("Movement")]
     [SerializeField, Min(0f)] private float moveSpeed = 5f;
     [SerializeField, Min(0f)] private float jumpVelocity = 10f;
+    [SerializeField, Min(0f)] private float dashSpeed = 18f;
+    [SerializeField, Min(0.01f)] private float dashDuration = 0.18f;
+    [SerializeField, Min(0f)] private float dashCooldown = 0.65f;
 
     [Header("Player")]
-    [SerializeField, Min(1)] private int maxHealth = 100;
-    [SerializeField, Min(0)] private int currentHealth = 100;
+    [SerializeField, Min(1)] private int maxHealth = 7;
+    [SerializeField, Min(0)] private int currentHealth = 7;
     [SerializeField, Min(0)] private int attackPower = 10;
     [SerializeField, Min(0)] private int defense = 0;
     [SerializeField] private GameObject damageNumberPrefab;
@@ -17,10 +21,14 @@ public sealed class PlayerAttributes : MonoBehaviour
 
     public float MoveSpeed => moveSpeed;
     public float JumpVelocity => jumpVelocity;
+    public float DashSpeed => dashSpeed;
+    public float DashDuration => dashDuration;
+    public float DashCooldown => dashCooldown;
     public int MaxHealth => maxHealth;
     public int CurrentHealth => currentHealth;
     public int AttackPower => attackPower;
     public int Defense => defense;
+    public event Action<int, int> HealthChanged;
 
     private void OnValidate()
     {
@@ -35,6 +43,7 @@ public sealed class PlayerAttributes : MonoBehaviour
             return;
 
         currentHealth = Mathf.Max(0, currentHealth - damage);
+        HealthChanged?.Invoke(currentHealth, maxHealth);
         ShowDamageNumber(damage);
     }
 
@@ -60,6 +69,11 @@ public sealed class PlayerAttributes : MonoBehaviour
 
     public void Heal(int amount)
     {
-        currentHealth = Mathf.Min(maxHealth, currentHealth + Mathf.Max(0, amount));
+        int healedHealth = Mathf.Min(maxHealth, currentHealth + Mathf.Max(0, amount));
+        if (healedHealth == currentHealth)
+            return;
+
+        currentHealth = healedHealth;
+        HealthChanged?.Invoke(currentHealth, maxHealth);
     }
 }

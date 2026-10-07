@@ -20,7 +20,7 @@
 | 房间 | 内容 |
 | --- | --- |
 | 01 | 高空坠落入场与复活区 |
-| 02 | 移动和跳跃教学 |
+| 02 | 移动和跳跃教学；右侧出口始终开放 |
 | 03 | Boss 教室，包含钟表敌人 |
 | 04 | 夜晚走廊 |
 | 05 | 逐渐变亮的教室 |
@@ -29,8 +29,9 @@
 ## 操作
 
 - `A` / `D`：左右移动
-- `K`：跳跃
-- `J`：玩家攻击
+- `K`：跳跃（松开可缩短跳跃）
+- `L`：沿朝向冲刺约 3.2 个世界单位，可在空中使用
+- `J`：玩家攻击，可在空中使用
 - `E`：打开或关闭附近的门
 
 ## 主要系统
@@ -42,6 +43,7 @@
 - `Assets/Scripts-my/EnemyProjectile.cs`：投射物碰撞和玩家伤害，兼容 `Health` 与 `PlayerAttributes`。
 - `Assets/Scripts-my/Health.cs`：敌人生命、受击数字、闪烁、击退和死亡。
 - `Assets/PlayerAttributes.cs`：玩家速度、跳跃、生命和攻击基础数值。
+- `Assets/PlayerHealthHud.cs`：主场景左上角的七格纸飞机血量 UI；受伤时由蓝色满血图标切换为灰色空血图标，复活回血时切换回来。贴图位于 `Assets/Resources/health_full.png` 和 `health_empty.png`，Canvas 可在 `main` 场景的 `Player Health HUD` 层级中调整。
 
 ## 常用调整位置
 

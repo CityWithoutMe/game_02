@@ -9,6 +9,7 @@ public sealed class SchoolDoor : MonoBehaviour
     [SerializeField] private TileBase openTile;
     [SerializeField] private bool initiallyOpen;
     [SerializeField] private bool initiallyLocked;
+    [SerializeField] private bool alwaysOpen;
     [SerializeField] private string requiredCoinId;
     private Tilemap tiles;
     private BoxCollider2D blocker;
@@ -47,15 +48,17 @@ public sealed class SchoolDoor : MonoBehaviour
 
     private void RefreshLockState()
     {
-        IsLocked = externallyLocked || !requiredCoinCollected;
-        if (IsLocked)
+        IsLocked = !alwaysOpen && (externallyLocked || !requiredCoinCollected);
+        if (alwaysOpen)
+            SetOpen(true);
+        else if (IsLocked)
             SetOpen(false);
     }
 
     public void SetOpen(bool open)
     {
-        if (open && IsLocked)
-            return;
+        if (alwaysOpen) open = true;
+        else if (open && IsLocked) return;
 
         if (tiles == null) tiles = GetComponent<Tilemap>();
         if (blocker == null) blocker = GetComponent<BoxCollider2D>();
@@ -66,6 +69,7 @@ public sealed class SchoolDoor : MonoBehaviour
 
     public void SetLocked(bool locked)
     {
+        if (alwaysOpen) return;
         externallyLocked = locked;
         RefreshLockState();
     }
@@ -83,7 +87,7 @@ public sealed class SchoolDoor : MonoBehaviour
 
     private void Update()
     {
-        if (!IsLocked && InReach() && Input.GetKeyDown(KeyCode.E))
+        if (!alwaysOpen && !IsLocked && InReach() && Input.GetKeyDown(KeyCode.E))
         {
             // Closing while occupied would push the player into a wall.
             if (IsOpen && Mathf.Abs(player.position.x - transform.position.x) < 1.4f) return;
@@ -93,7 +97,7 @@ public sealed class SchoolDoor : MonoBehaviour
 
     private void OnGUI()
     {
-        if (!InReach()) return;
+        if (alwaysOpen || !InReach()) return;
         string message = IsLocked
             ? (!requiredCoinCollected ? "COIN REQUIRED" : "LOCKED")
             : IsOpen ? "E  /  CLOSE" : "E  /  OPEN";

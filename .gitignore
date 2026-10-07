@@ -11,8 +11,6 @@
 
 # Local generation backups and disposable validation projects
 /Tools/
-/.build-presentation/
-~$*.pptx
 
 # IDE and machine state
 .vs/

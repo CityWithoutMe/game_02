@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class Player2D : MonoBehaviour
 {
-    [Header("ÒÆ¶¯")]
+    [Header("ç§»åŠ¨")]
     public float moveSpeed = 5f;
 
-    [Header("ÌøÔ¾")]
+    [Header("è·³è·ƒ")]
     public float jumpForce = 8f;
-    public int maxJumpCount = 2; // 1 = µ¥Ìø£¬2 = ¶ş¶ÎÌø
+    public int maxJumpCount = 2; // 1 = å•è·³ï¼Œ2 = äºŒæ®µè·³
 
-    [Header("µØÃæ¼ì²â")]
+    [Header("åœ°é¢æ£€æµ‹")]
     public Transform groundCheck;
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
@@ -42,7 +42,7 @@ public class Player2D : MonoBehaviour
             jumpCount = 0;
         }
 
-        if (Input.GetButtonDown("Jump") &&
+        if (Input.GetKeyDown(KeyCode.K) &&
             jumpCount < maxJumpCount)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
